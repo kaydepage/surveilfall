@@ -2,7 +2,9 @@ import {
   BrowserRouter as Router,
   Routes, Route, Link
 } from 'react-router-dom'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
 
 const Header = () => {
   return (
@@ -78,9 +80,26 @@ const Search = (props) => {
     <div>
       <Header />
       <div>
-        <div>
-          {cards.map(card => <div key={card.key}>{card.name}<img src={card.img} /></div>)}
-        </div>
+        {cards.data.map(card => 
+          <div key={card.id}>
+
+            {card.image_uris ? <img src={card.image_uris.small}/> :
+              <div>No image available</div>
+            }
+
+            <div>
+              <div>{card.name} {card.mana_cost}</div>
+              <div>{card.type_line}</div>
+              <div>{card.oracle_text}</div>
+              <div>{card.power}/{card.toughness}</div>
+              <div>Illustrated by {card.artist}</div>
+              <div>----------------</div>
+          
+            </div>
+          </div>
+        )}
+        
+      
       </div>
     </div>
   )
@@ -89,7 +108,18 @@ const Search = (props) => {
 
 const App = () => {
 
-  const [cards, setCards] = useState([{key: 1, name: "Overwhelming Forces", img: "https://cards.scryfall.io/large/front/c/5/c56c7fb4-8b7b-40fc-879c-76cfb5d417b8.jpg?1562257531"}])
+  const [cards, setCards] = useState([])
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('https://api.scryfall.com/cards/search?order=cmc&q=c%3Ared+pow%3D3')
+      .then(response => {
+        console.log('promise fulfilled')
+        console.log(response.data)
+        setCards(response.data)
+      })
+  }, [])
 
   return (
     <Router>
