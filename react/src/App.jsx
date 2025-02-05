@@ -53,6 +53,7 @@ const Advanced = () => {
       <h1>
         Advanced search
       </h1>
+      
 
     </div>
   )
@@ -64,8 +65,12 @@ const Search = (props) => {
   if (cards.length === 0) {
     return (
       <div>
-        No cards returned in search. Try searching something else.
+        <Header />
+        <div>
+          No cards returned in search. Try searching something else.
+        </div>
       </div>
+      
     )
   }
   return (
@@ -73,7 +78,9 @@ const Search = (props) => {
     <div>
       <Header />
       <div>
-        {cards.map(card => <div>{card.content}</div>)}
+        <div>
+          {cards.map(card => <div key={card.key}>{card.name}<img src={card.img} /></div>)}
+        </div>
       </div>
     </div>
   )
@@ -82,7 +89,7 @@ const Search = (props) => {
 
 const App = () => {
 
-  const [cards, setCards] = useState([1])
+  const [cards, setCards] = useState([{key: 1, name: "Overwhelming Forces", img: "https://cards.scryfall.io/large/front/c/5/c56c7fb4-8b7b-40fc-879c-76cfb5d417b8.jpg?1562257531"}])
 
   return (
     <Router>
