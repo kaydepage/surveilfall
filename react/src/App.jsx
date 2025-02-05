@@ -64,6 +64,7 @@ const Advanced = () => {
 const Search = (props) => {
 
   const { cards } = props
+  
   if (cards.length === 0) {
     return (
       <div>
@@ -81,9 +82,15 @@ const Search = (props) => {
       <Header />
       <div>
         {cards.data.map(card => 
-          <div key={card.id}>
-            <Card card={card} />
-          </div>
+          <Link to={`/card/${card.name}`}>
+            <div key={card.id}>
+              {card.image_uris ? <img src={card.image_uris.small}/> :
+                <div>
+                  <img src={card.card_faces[0].image_uris.small}/>
+                </div>
+              } 
+            </div>
+          </Link>
         )}
         
       
@@ -95,7 +102,7 @@ const Search = (props) => {
 const Card = (props) => {
   const {card} = props
   const [face, setFace] = useState(0)
-
+  const faceData = card.card_faces ? card.card_faces[face] : card
   
   return (
     <div>
@@ -105,26 +112,15 @@ const Card = (props) => {
           <img src={card.card_faces[face].image_uris.small}/>
           <button onClick={() => face ? setFace(0) : setFace(1)}>Flip</button>
         </div>
-      }
-      {card.card_faces ? 
-      <div>
-        <div>{card.card_faces[face].name} {card.card_faces[face].mana_cost}</div>
-        <div>{card.card_faces[face].type_line}</div>
-        <div>{card.card_faces[face].oracle_text}</div>
-        <div>{card.card_faces[face].power}/{card.card_faces[face].toughness}</div>
-        <div>Illustrated by {card.card_faces[face].artist}</div>
-        <div>----------------</div>
-      </div> :
-      <div>
+      }        
+
+      <div>{faceData.name} {faceData.mana_cost}</div>
+      <div>{faceData.type_line}</div>
+      <div>{faceData.oracle_text}</div>
+      <div>{faceData.power}/{faceData.toughness}</div>
+      <div>Illustrated by {faceData.artist}</div>
+      <div>----------------</div>
         
-        <div>{card.name} {card.mana_cost}</div>
-        <div>{card.type_line}</div>
-        <div>{card.oracle_text}</div>
-        <div>{card.power}/{card.toughness}</div>
-        <div>Illustrated by {card.artist}</div>
-        <div>----------------</div>
-      </div>
-        }
     </div>
   )
 
