@@ -1,6 +1,6 @@
 import {
   BrowserRouter as Router,
-  Routes, Route, Link, useParams
+  Routes, Route, Link, useNavigate, useParams
 } from 'react-router-dom'
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -18,10 +18,23 @@ const Header = () => {
 }
 
 const SearchBar = () => {
+  const [query, setQuery] = useState('')
+  const navigate = useNavigate()
+
+  const handleQueryChange = (event) => {
+    setQuery(event.target.value)
+  }
+
+  const submitSearch = (event) => {
+    event.preventDefault()
+    const uri = encodeURIComponent(query).replace(/%20/g, '+')
+    navigate(`/search/${uri}`)
+  }
+  
   return (
     <div>
-      <form action="/search">
-        <input type="text"/>
+      <form onSubmit={submitSearch}>
+        <input type="text" value={query} onChange={handleQueryChange}/>
       </form>
     </div>    
   )
@@ -61,9 +74,19 @@ const Advanced = () => {
   )
 }
 
-const Search = (props) => {
-  const { cards } = props
+const Search = () => {
+  const { uri } = useParams()
+  const [cards, setCards] = useState([])
   
+  
+  useEffect(() => {
+
+    axios
+      .get(`https://api.scryfall.com/cards/search?order=cmc&q=${uri}`)
+      .then(response => setCards(response.data.data))
+      .catch(error => console.error("Failed to fetch card:", error))
+  }, [uri])
+
   if (cards.length === 0) {
     return (
       <div>
@@ -80,13 +103,13 @@ const Search = (props) => {
     <div>
       <Header />
       <div>
-        {cards.data.map(card => 
+        {cards.map(card => 
           <Link key={card.id} 
           to={`/card/${card.name.replace(/ \/\/ /g, '-').replace(/\s/g, '-')}`}>
             
-            {card.image_uris ? <img src={card.image_uris.small}/> :
+            {card.image_uris ? <img src={card.image_uris.normal}/> :
               <div>
-                <img src={card.card_faces[0].image_uris.small}/>
+                <img src={card.card_faces[0].image_uris.normal}/>
               </div>
             } 
             
@@ -115,8 +138,8 @@ const Card = () => {
   
   const faceData = card.card_faces ? card.card_faces[face] : card
   const imageUrl = card.image_uris
-    ? card.image_uris.small
-    : card.card_faces[face].image_uris.small
+    ? card.image_uris.normal
+    : card.card_faces[face].image_uris.normal
 
   return (
     <div>
@@ -143,26 +166,12 @@ const Card = () => {
 
 const App = () => {
 
-  const [cards, setCards] = useState([])
-
-
-  useEffect(() => {
-    console.log('effect')
-    axios
-      .get('https://api.scryfall.com/cards/search?order=cmc&q=c%3Ared+pow%3D3')
-      .then(response => {
-        console.log('promise fulfilled')
-        console.log(response.data)
-        setCards(response.data)
-      })
-  }, [])
-
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/advanced" element={<Advanced />} />
-        <Route path="/search" element={<Search cards={cards}/>} />
+        <Route path="/search/:uri" element={<Search />} />
         <Route path="/card/:name" element={<Card />} />
       </Routes>
 
