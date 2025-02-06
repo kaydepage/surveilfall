@@ -1,6 +1,6 @@
 import {
   BrowserRouter as Router,
-  Routes, Route, Link
+  Routes, Route, Link, useParams
 } from 'react-router-dom'
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -62,7 +62,6 @@ const Advanced = () => {
 }
 
 const Search = (props) => {
-
   const { cards } = props
   
   if (cards.length === 0) {
@@ -82,14 +81,15 @@ const Search = (props) => {
       <Header />
       <div>
         {cards.data.map(card => 
-          <Link to={`/card/${card.name}`}>
-            <div key={card.id}>
-              {card.image_uris ? <img src={card.image_uris.small}/> :
-                <div>
-                  <img src={card.card_faces[0].image_uris.small}/>
-                </div>
-              } 
-            </div>
+          <Link key={card.id} 
+          to={`/card/${card.name.replace(/ \/\/ /g, '-').replace(/\s/g, '-')}`}>
+            
+            {card.image_uris ? <img src={card.image_uris.small}/> :
+              <div>
+                <img src={card.card_faces[0].image_uris.small}/>
+              </div>
+            } 
+            
           </Link>
         )}
         
@@ -99,28 +99,42 @@ const Search = (props) => {
   )
 }
 
-const Card = (props) => {
-  const {card} = props
+const Card = () => {
+  const { name: cardName } = useParams()
   const [face, setFace] = useState(0)
-  const faceData = card.card_faces ? card.card_faces[face] : card
+  const [card, setCard] = useState(null)
+
+  useEffect(() => {
+    axios
+      .get(`https://api.scryfall.com/cards/named?fuzzy=${cardName}`)
+      .then(response => setCard(response.data))
+      .catch(error => console.error("Failed to fetch card:", error))
+  }, [cardName])
+
+  if (!card) return <div><Header /><div>Loading...</div></div>
   
+  const faceData = card.card_faces ? card.card_faces[face] : card
+  const imageUrl = card.image_uris
+    ? card.image_uris.small
+    : card.card_faces[face].image_uris.small
+
   return (
     <div>
-
-      {card.image_uris ? <img src={card.image_uris.small}/> :
-        <div>
-          <img src={card.card_faces[face].image_uris.small}/>
-          <button onClick={() => face ? setFace(0) : setFace(1)}>Flip</button>
-        </div>
-      }        
-
-      <div>{faceData.name} {faceData.mana_cost}</div>
-      <div>{faceData.type_line}</div>
-      <div>{faceData.oracle_text}</div>
-      <div>{faceData.power}/{faceData.toughness}</div>
-      <div>Illustrated by {faceData.artist}</div>
-      <div>----------------</div>
-        
+      <Header />
+      <div>
+        <img src={imageUrl} alt={faceData.name} />
+        {card.card_faces && (
+          <button onClick={() => setFace((face + 1) % card.card_faces.length)}>
+            Flip
+          </button>
+        )}
+        <div>{faceData.name} {faceData.mana_cost}</div>
+        <div>{faceData.type_line}</div>
+        <div>{faceData.oracle_text}</div>
+        <div>{faceData.power}/{faceData.toughness}</div>
+        <div>Illustrated by {faceData.artist}</div>
+      </div>
+      
     </div>
   )
 
@@ -130,6 +144,7 @@ const Card = (props) => {
 const App = () => {
 
   const [cards, setCards] = useState([])
+
 
   useEffect(() => {
     console.log('effect')
@@ -148,6 +163,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/advanced" element={<Advanced />} />
         <Route path="/search" element={<Search cards={cards}/>} />
+        <Route path="/card/:name" element={<Card />} />
       </Routes>
 
       <div>
