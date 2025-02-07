@@ -74,23 +74,80 @@ const Advanced = () => {
   )
 }
 
+const SearchControls = (props) => {
+  const  { setUnique, setView, setOrder, setDir } = props
+
+  return (
+
+    <div>
+      <div>
+        <label></label>
+        <select defaultValue="cards" onChange={(event) => {setUnique(event.target.value)}}>
+          <option value="cards" >Cards</option>
+          <option value="prints">All prints</option>
+          <option value="art">Unique art</option>
+        </select>
+
+        <label> as </label>
+        <select defaultValue="grid" onChange={(event) => {setView(event.target.value)}}>
+          <option value="grid">Images</option>
+          <option value="checklist">Checklist</option>
+          <option value="text">Text Only</option>
+          <option value="full">Full</option>
+        </select>
+
+        <label> sorted by </label>   
+        <select defaultValue="cmc" onChange={(event) => {setOrder(event.target.value)}}>
+          <option value="name">Name</option> 
+          <option value="released">Release Date</option> 
+          <option value="set">Set/Number</option> 
+          <option value="rarity">Rarity</option> 
+          <option value="color">Color</option> 
+          <option value="usd">Price: USD</option> 
+          <option value="tix">Price: TIX</option> 
+          <option value="eur">Price: EUR</option> 
+          <option value="cmc">Mana Value</option> 
+          <option value="power">Power</option> 
+          <option value="toughness">Toughness</option> 
+          <option value="artist">Artist Name</option> 
+          <option value="review">Set Review</option>
+          <option value="edhrec">EDHREC Rank</option>
+        </select>
+
+        <label> : </label>    
+        <select defaultValue="" onChange={(event) => {setDir(event.target.value)}}>
+          <option value="">Auto</option>
+          <option value="asc">Asc</option> 
+          <option value="desc">Desc</option>
+        </select>            
+      </div>
+    </div>
+  )
+}
+
 const Search = () => {
   const { uri } = useParams()
   const [cards, setCards] = useState([])
+
+  const [unique, setUnique] = useState('cards')
+  const [view, setView] = useState('grid')
+  const [order, setOrder] = useState('cmc')
+  const [dir, setDir] = useState('')
   
   
   useEffect(() => {
 
     axios
-      .get(`https://api.scryfall.com/cards/search?order=cmc&q=${uri}`)
+      .get(`https://api.scryfall.com/cards/search?unique=${unique}&as=${view}&order=${order}&dir=${dir}&q=${uri}`)
       .then(response => setCards(response.data.data))
       .catch(error => console.error("Failed to fetch card:", error))
-  }, [uri])
+  }, [uri, unique, view, order, dir])
 
   if (cards.length === 0) {
     return (
       <div>
         <Header />
+        <SearchControls setUnique={setUnique} setView={setView} setOrder={setOrder} setDir={setDir}/>
         <div>
           No cards returned in search. Try searching something else.
         </div>
@@ -102,6 +159,7 @@ const Search = () => {
     
     <div>
       <Header />
+      <SearchControls setUnique={setUnique} setView={setView} setOrder={setOrder} setDir={setDir}/>
       <div>
         {cards.map(card => 
           <Link key={card.id} 
