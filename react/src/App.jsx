@@ -4,6 +4,7 @@ import {
 } from 'react-router-dom'
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import otagList from './otagList';
 
 
 const Header = () => {
@@ -11,8 +12,8 @@ const Header = () => {
     <div>
 
       <SearchBar />
-      <Link to="/">home</Link>
-      <Link to="/advanced">advanced</Link>
+      <Link to="/"> home </Link>
+      <Link to="/advanced"> advanced </Link>
     </div>
   )
 }
@@ -61,13 +62,192 @@ const Home = () => {
 }
 
 const Advanced = () => {
-
+  const [oracleTags, setOracleTags] = useState(otagList)
   return (
     <div>
       <Header />
-      <h1>
-        Advanced search
-      </h1>
+      <form>
+        <div>
+          <label>Card Name </label>
+          <input type="text" placeholder='Any words in the name, e.g."Ice"'></input>
+        </div>
+
+        <div>
+          <label>Text </label>
+          <input type="text" placeholder='Any text, e.g. "draw a card"'></input>
+        </div>
+
+        <div>
+          <label>Type Line </label>
+          <input type="text" placeholder='Enter a type or choose from the list'></input>
+        </div>
+
+        <div>
+          <label>Colors </label>
+          <div>
+            <label>
+              <input type="checkbox"/>
+              White
+            </label>
+            
+            <label>
+              <input type="checkbox"/>
+              Blue 
+            </label>
+            
+            <label>
+              <input type="checkbox"/>
+              Black
+            </label>
+            
+            <label>
+              <input type="checkbox"/>
+              Red
+            </label>
+            
+            <label>
+              <input type="checkbox"/>
+              Green
+            </label>
+        
+            <label>
+              <input type="checkbox"/>
+              Colorless
+            </label>
+          </div>
+          <div>
+            <select>
+              <option value="=">Exactly these colors</option>
+              <option value=">=">Including these colors</option>
+              <option value="<=">At most these colors</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label>Commander </label>
+          <div>
+            <label>
+              <input type="checkbox"/>
+              White
+            </label>
+            
+            <label>
+              <input type="checkbox"/>
+              Blue 
+            </label>
+            
+            <label>
+              <input type="checkbox"/>
+              Black
+            </label>
+            
+            <label>
+              <input type="checkbox"/>
+              Red
+            </label>
+            
+            <label>
+              <input type="checkbox"/>
+              Green
+            </label>
+        
+            <label>
+              <input type="checkbox"/>
+              Colorless
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label>Mana Cost </label>
+          <input type="text" placeholder='Any mana symbols, e.g. "{W}{W}"'></input>
+        </div>
+
+        <div>
+          <label>Stats </label>
+          <input type="text" placeholder='Any value, e.g. "3"'></input>
+        </div>
+
+        <div>
+          <label>Oracle Tags </label>
+          <input list="oracle-tags" placeholder='Enter a tag or choose from the list' multiple></input>
+          <datalist id="oracle-tags">
+            {oracleTags.map(tag =>
+              <option value={tag}/>
+            )}
+          </datalist>
+        </div>
+
+        {/* <div>
+          <label>Games </label>
+        </div>
+
+        <div>
+          <label>Formats </label>
+        </div> */}
+
+        <div>
+          <label>Sets </label>
+          <input type="text" placeholder='Enter a set name or choose from the list'></input>
+          <input type="text" placeholder='Enter a block name or choose from the list'></input>
+        </div>
+
+        <div>
+          <label>Rarity </label>
+        </div>
+
+        {/* <div>
+          <label>Criteria </label>
+          <input type="text" placeholder='Enter a criterion or choose from the list'></input>
+        </div> */}
+
+        <div>
+          <label>Prices </label>
+          <select>
+            <option value="usd">USD</option>
+            <option value="eur">Euro</option>
+            <option value="tix">MTGO Tickets</option>
+          </select>
+          <select>
+            <option value="<">less than</option>
+            <option value=">">greater than</option>
+            <option value="<=">less than or equal to</option>
+            <option value=">=">greater than or equal to</option>
+          </select>
+          <input type="text" placeholder='Any value, e.g."10.00"'></input>
+        </div>
+
+        <div>
+          <label>Artist </label>
+          <input type="text" placeholder='Any artist name, e.g. "Magali"'></input>
+        </div>
+
+        <div>
+          <label>Flavour Text </label>
+          <input type="text" placeholder='Any flavour text, e.g. "Kjeldoran"'></input>
+        </div>
+
+        <div>
+          <label>Lore Finder </label>
+          <input type="text" placeholder='Any Text, especially names, e.g. "Jhoira"'></input>
+        </div>
+        
+        <div>
+          <label>Language </label>
+          <select>
+
+          </select>
+        </div>
+
+        <div>
+          <label>Preferences </label>
+        </div>
+
+        <div>
+          <button type="submit">Search with selected options</button>
+        </div>
+      </form>
       
 
     </div>
@@ -75,8 +255,8 @@ const Advanced = () => {
 }
 
 const SearchControls = (props) => {
-  const  { setUnique, setView, setOrder, setDir } = props
-
+  const { setUnique, setView, setOrder, setDir } = props
+  
   return (
 
     <div>
